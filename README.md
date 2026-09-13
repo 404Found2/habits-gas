@@ -6,6 +6,8 @@ This tool keeps your personal routine data entirely within your own private Goog
 
 ---
 
+> Note: This project used AI to quickly generate css styling. All other aspects from app design and features to html form structures were coded by hand. This was meant to be a practice the ethical use of utilizing AI to make work more efficient while also learning about dynamic webpages.
+
 ## Features
 
 * **Automated Logging:** Seamlessly track daily habits and routines backed by custom Apps Script automation.
