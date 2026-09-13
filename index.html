@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+  <script src="https://kit.fontawesome.com/8dc5063b50.js" crossorigin="anonymous"></script>
+  
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Task Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        :root {
+            --bg-color: #222222;
+            --panel-bg: #1c1c1c;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-orange: #f59e0b;
+            --health-red: #ef4444;
+            --profession-blue: #4a86e8;
+            --social-green: #6aa84f;
+            --gray: #878787;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .dashboard {
+            width: 1000px;
+            background-color: var(--panel-bg);
+            padding: 40px;
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            gap: 50px;
+        }
+        .rewards-link {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+        .calendar-section {
+            border: 2px dashed #444444;
+            padding: 20px 40px;
+            text-align: center;
+            width: 260px;
+        }
+        .month-title {
+            color: var(--accent-orange);
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .date-display {
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .time-display {
+            color: var(--accent-orange);
+            font-size: 28px;
+        }
+        .streaks-section {
+            width: 100%;
+        }
+        .streaks-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        .streaks-container {
+            display: flex;
+            gap: 20px;
+        }
+        .streak-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .streak-circle {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: transparent;
+        }
+      
+        .gray .streak-circle  {
+          color: var(--gray) !important;
+          border: 3px solid var(--gray)!important;
+        }
+      
+        .streak-circle.red {
+            border: 3px solid var(--health-red);
+            color: var(--health-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+        .streak-circle.blue {
+            border: 3px solid var(--profession-blue);
+            color: var(--profession-blue);
+            box-shadow: 0 0 15px rgba(74, 134, 232, 0.4);
+        }
+        .streak-circle.green {
+            border: 3px solid var(--social-green);
+            color: var(--social-green);
+            box-shadow: 0 0 15px rgba(106, 168, 79, 0.4);
+        }
+        .streak-label {
+            font-size: 12px;
+        }
+        .streak-label.red { color: var(--health-red); }
+        .streak-label.blue { color: var(--profession-blue); }
+        .streak-label.green { color: var(--social-green); }
+
+        .gray .streak-label {
+          color: var(--gray) !important;
+        }
+
+                /* Right Side: Task Categories & Point Total */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .categories-stack, .store-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+      
+      .hide {
+        display: none !important;
+      }
+
+        .category-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        /* Circular Icons Styling */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon-circle.health {
+            border: 2px solid var(--health-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+        .icon-circle.profession {
+            border: 2px solid var(--profession-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+        .icon-circle.social {
+            border: 2px solid var(--social-green);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+        }
+
+        i {
+            font-size: 24px;
+        }
+
+        /* Content Blocks */
+        .category-content {
+            flex-grow: 1;
+        }
+
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            margin-top: 2px;
+        }
+
+        .red { color: var(--health-red); }
+        .blue { color: var(--profession-blue);}
+        .green { color: var(--social-green); }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Custom Checkbox Design */
+        .custom-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1px solid #888888;
+            background-color: transparent;
+            display: inline-block;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .task-item.checked .custom-checkbox {
+            background-color: #555555;
+            border-color: #666666;
+        }
+        .task-item.checked .custom-checkbox::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 10px;
+        }
+
+        .task-text {
+            color: #dddddd;
+            font-size: 0.95rem;
+            transition: color 0.2s, text-decoration 0.2s;
+        }
+
+        /* RED STYLE CHECKBOXES */
+        .redgroup .task-item.checked .task-text .task-label {
+            text-decoration: line-through;
+            color:var(--health-red);
+        }
+      
+       .redgroup .task-item.checked .custom-checkbox {
+            background: var(--health-red);
+            border-color: var(--health-red);
+            font-size: 10px;
+        }
+
+        /* BLUE STYLE CHECKBOXES */
+        .bluegroup .task-item.checked .task-text .task-label {
+            text-decoration: line-through;
+            color:var(--profession-blue);
+        }
+      
+       .bluegroup .task-item.checked .custom-checkbox {
+            background: var(--profession-blue);
+            border-color: var(--profession-blue);
+            font-size: 10px;
+        }
+
+        /* GREEN STYLE CHECKBOXES */
+        .greengroup .task-item.checked .task-text .task-label {
+            text-decoration: line-through;
+            color:var(--social-green);
+        }
+      
+       .greengroup .task-item.checked .custom-checkbox {
+            background: var(--social-green);
+            border-color: var(--social-green);
+            font-size: 10px;
+        }
+
+        .pts-label {
+            color: #888888 !important;
+            font-size: 0.8rem;
+            margin-left: 4px;
+        }
+
+
+        /* Store Stuff */
+              .store-title {
+            color: var(--accent-orange);
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+        }
+
+        .store-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .store-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .point-pill {
+            background-color: var(--store-pill-bg);
+            color: var(--store-pill-text);
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            min-width: 75px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .point-pill.color {
+            background-color: #d97706;
+            border-color: #d97706;
+            font-size: 0.75rem;
+            line-height: 1.1;
+            padding: 4px 10px;
+        }
+
+        .item-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        /* Divider Decoration */
+        .dash-divider {
+            border: none;
+            border-top: 2px dashed #444444;
+            margin: 35px 0 25px 0;
+            width: 100%;
+        }
+
+        /* Total Points Container */
+        .total-container {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .total-label {
+            font-size: 2.2rem;
+            font-weight: 400;
+        }
+
+        .total-value {
+            color: var(--accent-orange);
+            font-size: 3.2rem;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+      
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                padding: 25px;
+            }
+            .rewards-link {
+                top: 15px;
+                right: 25px;
+            }
+            .clock-box {
+                margin-top: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="dashboard">
+        <a href="#" class="rewards-link" id="toggle-menu" onclick="toggleMenu(this)"> &larr; Buy Rewards</a>
+
+        <!-- Left Side Panel with Date and Streaks -->
+        <div class="left-panel">
+            <div class="calendar-section">
+                <div class="month-title" id="month"></div>
+                <div class="date-display" id="date"></div>
+                <div id="liveClock" class="time-display"></div>
+            </div>
+
+            <!-- New My Streaks Section -->
+            <div class="streaks-section">
+                <div class="streaks-title">My Streaks:</div>
+                <div class="streaks-container">
+                    <div class="streak-item gray" id="red-streak-container">
+                        <div class="streak-circle red" id="red_num">0</div>
+                        <div class="streak-label red">Day Streak</div>
+                    </div>
+                    <div class="streak-item gray" id="blue-streak-container">
+                        <div class="streak-circle blue" id="blue_num">0</div>
+                        <div class="streak-label blue">Day Streak</div>
+                    </div>
+                    <div class="streak-item gray" id="green-streak-container">
+                        <div class="streak-circle green" id="green_num">0</div>
+                        <div class="streak-label green">Day Streak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Right Side Task List Panel -->
+        <div class="right-panel">
+            <div id="goals" class="categories-stack"> 
+                <!-- Health Group -->
+                <div class="redgroup category-row">
+                    <div class="icon-circle health">
+                        <!-- Medical Caduceus Icon SVG -->
+                        <i class="fa-regular red fa-hospital"></i>
+                    </div>
+                    <div class="category-content">
+                        <div class="category-title health red">Health</div>
+                        <div class="task-list" id="cat1">
+                          <!-- Dynamically Update -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profession Group -->
+                <div class="bluegroup category-row">
+                    <div class="icon-circle profession">
+                        <i class="fa-solid blue fa-briefcase"></i>
+                    </div>
+                    <div class="category-content">
+                        <div class="category-title blue profession">Profession</div>
+                        <div class="task-list" id="cat2">
+                          <!-- Dynamically Update -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Group -->
+                <div class="greengroup category-row">
+                    <div class="icon-circle social">
+                        <!-- Peace Sign / Social Icon SVG -->
+                       <i class="fa-solid green fa-share-nodes"></i>
+                    </div>
+                    <div class="category-content">
+                        <div class="category-title green social">Social</div>
+                        <div class="task-list" id="cat3">
+                          <!-- Dynamically Update -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+          <div id="rewards" class="store-stack hide"> 
+                <div class="store-title">Store</div>
+                <div class="store-stack" id="rewards-list">
+                  <!-- Dynamically Update -->
+                </div>
+
+            </div>
+
+            <!-- Points Summary Footer section -->
+            <div>
+                <hr class="dash-divider">
+                <div class="total-container">
+                    <div class="total-label">Total:</div>
+                    <div class="total-value"><span id="pointsCounter">0</span> pts</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        // Develop DOM
+        let red = <?!= JSON.stringify(red) ?>;
+        let blue = <?!= JSON.stringify(blue) ?>;
+        let green = <?!= JSON.stringify(green) ?>;
+
+        let store_arr = <?!= JSON.stringify(storeD) ?>;
+        let streak_arr = <?!= JSON.stringify(streak) ?>;  
+        let totalPoints= <?!= points ?>;
+
+      let red_html = ``;
+      red.forEach((item) => {
+        red_html += `<div class="task-item ${ item[2] ? "checked": "" }" cat="cat1" data-points="${item[1]}" onclick="toggleTask(this)">
+                                <span class="custom-checkbox"></span>
+                                <span class="task-text">
+                                  <span class="task-label">${item[0]}</span>
+                                  <span class="pts-label">(${item[1]} pts)</span>
+                                </span>
+                            </div>`} 
+        );
+      
+      let blue_html = ``;
+      blue.forEach((item) => {
+        blue_html += `<div class="task-item ${ item[2] ? "checked": "" }" cat="cat2" data-points="${item[1]}" onclick="toggleTask(this)">
+                                <span class="custom-checkbox"></span>
+                                <span class="task-text">
+                                  <span class="task-label">${item[0]}</span>
+                                  <span class="pts-label">(${item[1]} pts)</span>
+                                </span>
+                            </div>`} 
+        );
+      
+      let green_html = ``;
+      green.forEach((item) => {
+        green_html += `<div class="task-item ${ item[2] ? "checked": '' }" cat="cat3" data-points="${item[1]}" onclick="toggleTask(this)">
+                                <span class="custom-checkbox"></span>
+                                <span class="task-text">
+                                  <span class="task-label">${item[0]}</span>
+                                  <span class="pts-label">(${item[1]} pts)</span>
+                                </span>
+                            </div>`} 
+        );
+      
+      document.getElementById('cat1').innerHTML = red_html;
+      document.getElementById('cat2').innerHTML = blue_html;
+      document.getElementById('cat3').innerHTML = green_html;
+
+      let store_html = ``;
+      store_arr.forEach( (item) => {
+          store_html += `<div class="store-item">
+                          <button class="point-pill color" onclick="buyItem(this)"> ${ item[1] } Pts</button>
+                          <div class="item-text"> ${ item[0] }</div>
+                        </div>`}
+      );
+
+        document.getElementById('rewards-list').innerHTML = store_html;
+        document.getElementById('pointsCounter').innerText = totalPoints;
+
+       
+
+        var today = new Date();
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1); 
+
+        var rd = new Date(streak_arr[0][1]);
+        var bd = new Date(streak_arr[1][1]);
+        var gd = new Date(streak_arr[2][1]);
+
+      
+        if(rd.getMonth() == today.getMonth() && rd.getDate() == today.getDate() && rd.getYear() == today.getYear()) {
+          document.getElementById('red-streak-container').classList.remove('gray');
+          document.getElementById('red_num').innerText = streak_arr[0][0];
+        } else {
+          document.getElementById('red-streak-container').classList.add('gray');
+          if(rd.getMonth() != yesterday.getMonth() && rd.getDate() != yesterday.getDate() && rd.getYear() != yesterday.getYear()) {
+             document.getElementById('red_num').innerText = 0;
+          } else {
+            document.getElementById('red_num').innerText = streak_arr[0][0];
+          }
+        }
+
+       
+         if(bd.getMonth() == today.getMonth() && bd.getDate() == today.getDate() && bd.getYear() == today.getYear()) {
+          document.getElementById('blue-streak-container').classList.remove('gray');
+          document.getElementById('blue_num').innerText = streak_arr[1][0];
+        } else {
+          document.getElementById('blue-streak-container').classList.add('gray');
+          if(bd.getMonth() != yesterday.getMonth() && bd.getDate() != yesterday.getDate() && bd.getYear() != yesterday.getYear()) {
+             document.getElementById('blue_num').innerText = 0;
+          } else {
+             document.getElementById('blue_num').innerText = streak_arr[1][0];
+          }
+        }
+
+        
+         if(gd.getMonth() == today.getMonth() && gd.getDate() == today.getDate() && gd.getYear() == today.getYear()) {
+          document.getElementById('green-streak-container').classList.remove('gray');
+          document.getElementById('green_num').innerText = streak_arr[2][0];
+        } else {
+          document.getElementById('green-streak-container').classList.add('gray');
+          if(gd.getMonth() != yesterday.getMonth() && gd.getDate() != yesterday.getDate() && gd.getYear() != yesterday.getYear()) {
+             document.getElementById('green_num').innerText = 0;
+          } else {
+            document.getElementById('green_num').innerText = streak_arr[2][0];
+          }
+        }
+
+
+      
+      //END TODO LIST INITIALIZATION
+
+        function toggleTask(element) {
+            const points = parseInt(element.getAttribute('data-points'), 10);
+            const cat = element.getAttribute('cat');
+            var add;
+            
+            if (element.classList.contains('checked')) {
+                element.classList.contains('checked');
+                element.classList.remove('checked');
+                totalPoints -= points;
+                add = false;
+            } else {
+                element.classList.add('checked');
+                totalPoints += points;
+                add = true;
+            }
+
+            var indx = element.innerText.lastIndexOf('(');
+            var string = element.innerText.substring(0, indx);
+
+            document.getElementById('pointsCounter').innerText = totalPoints;
+
+            google.script.run
+            .withSuccessHandler( (res) => {
+              if(res === "error") {
+                alert("Error: Please Refresh Your Page and try again");
+              } else {
+                google.script.run
+                .withSuccessHandler( (res) => {
+
+                  if(res[0][0]) {
+                    document.getElementById('red-streak-container').classList.remove('gray');
+                  } else {
+                    document.getElementById('red-streak-container').classList.gray('gray');
+                  }
+
+                  if(res[1][0]) {
+                    document.getElementById('blue-streak-container').classList.remove('gray');
+                  } else {
+                    document.getElementById('blue-streak-container').classList.gray('gray');
+                  }
+
+                  if(res[2][0]) {
+                    document.getElementById('green-streak-container').classList.remove('gray');
+                  } else {
+                    document.getElementById('green-streak-container').classList.gray('gray');
+                  }
+
+                  document.getElementById('red_num').innerText = res[0][1];
+                  document.getElementById('blue_num').innerText = res[1][1];
+                  document.getElementById('green_num').innerText = res[2][1];
+                })
+                .updateStreaks();
+              }
+            })
+            .postTask( add, cat, string, totalPoints);
+
+            
+        }
+
+        function toggleMenu(el){
+          var store = document.getElementById('rewards');
+          var goals = document.getElementById('goals');
+          
+          if(el.innerHTML == '← Buy Rewards') {
+            el.innerHTML = '← View Goals';
+            store.classList.remove('hide');
+            goals.classList.add('hide');
+            
+          } else {
+            el.innerHTML = '← Buy Rewards';
+            goals.classList.remove('hide');
+            store.classList.add('hide');
+          }  
+        }
+
+        function buyItem(el) {
+          const storeItem = event.target.closest('.store-item');
+          const textElement = storeItem.querySelector('.item-text');
+          const itemText = textElement.textContent;
+
+          google.script.run
+            .withSuccessHandler( (res) => {
+              if(res == "error") {
+                alert("You don't have enough points to buy this!");
+              } else {
+                document.getElementById('pointsCounter').innerText = res;
+                alert("Sucessfully Bought Reward!");
+              }
+            })
+            .postReward(itemText); // Execute server function
+          
+        }
+
+      
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Handle midnight (0) as 12
+            const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+            
+            const timeString = `${hours}:${minutesStr} ${ampm}`;
+            document.getElementById('month').innerText = now.toLocaleString('default', { month: 'long' });
+            document.getElementById('date').innerText = now.getDate();
+            document.getElementById('liveClock').innerText = timeString;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); // Run immediately
+
+    </script>
+</body>
+</html>
